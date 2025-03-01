@@ -36,6 +36,7 @@ If not, see <https://www.gnu.org/licenses/>.
 #include "dev_picomem_io.h"   // SetPortType / GetPortType
 #include "hardware/pwm.h"
 
+#if USE_USBHOST
 #include "hid_dev.h"      // In USB_Host_driver
 
 constexpr float pwm_clkdiv = (float) (280000 / 22727.27);  //CPU Clock
@@ -129,3 +130,4 @@ void dev_joystick_iow(uint32_t CTRL_AL8,uint8_t Data)
   
  }
 }
+#endif

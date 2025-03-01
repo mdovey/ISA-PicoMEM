@@ -291,8 +291,15 @@ ISA_Do_IO:  // Goto, from the assembly code
            dev_dma_iow(ISA_IO_Addr,ISAIOW_Data);
           break;           
 #endif
-
+#if USE_RTC   
+        case DEV_RTC :
+           dev_rtc_iow(ISA_IO_Addr,ISAIOW_Data);
+           break;   
+#endif
 // *** Add Other device IOW here ***         
+
+
+
 
         }          // switch(IO_Device) (Write)
        break;     // End ISA_Cycle=IOW
@@ -334,7 +341,13 @@ ISA_Do_IO:  // Goto, from the assembly code
         case DEV_SBDSP:
            if (dev_sbdsp_ior(ISA_IO_Addr,&ISA_Data)) pm_do_ior();        
           break;
-#endif          
+#endif 
+#if USE_RTC   
+        case DEV_RTC:
+           dev_rtc_ior(ISA_IO_Addr,&ISA_Data);
+           pm_do_ior();           
+           break; 
+#endif
 
    // *** Add Other device IOR here ***
         }         // switch(IO_Device) (Read)

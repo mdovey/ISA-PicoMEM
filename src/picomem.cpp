@@ -52,7 +52,13 @@ extern void sbdsp_test();
 
 // PicoMEM emulated devices include
 #include "dev_post.h"
+#if USE_USBHOST
 #include "dev_joystick.h"
+#endif
+#if USE_RTC
+#include "dev_rtc.h"
+#endif
+
 #if USE_AUDIO
 #include "dev_adlib.h"
 #include "dev_cms.h"

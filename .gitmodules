@@ -4,3 +4,6 @@
 [submodule "src/lib/tusb_xinput"]
 	path = src/lib/tusb_xinput
 	url = https://github.com/Ryzee119/tusb_xinput.git
+[submodule "pmbios/GLaTICK"]
+	path = pmbios/GLaTICK
+	url = https://github.com/640-KB/GLaTICK.git

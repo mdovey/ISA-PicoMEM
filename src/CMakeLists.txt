@@ -12,48 +12,6 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-if(WIN32)
-    set(USERHOME $ENV{USERPROFILE})
-else()
-    set(USERHOME $ENV{HOME})
-endif()
-set(sdkVersion 2.1.0)
-set(toolchainVersion 13_3_Rel1)
-set(picotoolVersion 2.1.0)
-set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
-if (EXISTS ${picoVscode})
-    include(${picoVscode})
-endif()
-# ====================================================================================
-# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-if(WIN32)
-    set(USERHOME $ENV{USERPROFILE})
-else()
-    set(USERHOME $ENV{HOME})
-endif()
-set(sdkVersion 2.0.0)
-set(toolchainVersion 13_2_Rel1)
-set(picotoolVersion 2.0.0)
-set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
-if (EXISTS ${picoVscode})
-    include(${picoVscode})
-endif()
-# ====================================================================================
-# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-if(WIN32)
-    set(USERHOME $ENV{USERPROFILE})
-else()
-    set(USERHOME $ENV{HOME})
-endif()
-set(sdkVersion 2.0.0)
-set(toolchainVersion 13_2_Rel1)
-set(picotoolVersion 2.0.0)
-set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
-if (EXISTS ${picoVscode})
-    include(${picoVscode})
-endif()
-# ====================================================================================
 # PicoMEM CMake file
 
 # https://github.com/bgni/minimal-pico-tinyusb-pio-project
@@ -86,7 +44,7 @@ include(pico_sdk_import.cmake)
  set(STDIO_UART 1)
  set(USB_UART 0)
  set(ASYNC_UART 0)
- set(DO_USBHOST 1)
+ set(DO_USBHOST 0)
  
 project(picomem C CXX ASM)
   
@@ -221,6 +179,8 @@ if (PROJECT_TYPE STREQUAL "TEST")
     USE_ALARM=1                    # pic.c used for audio interrupts.
 # To compile with EMU8950_LINEAR, Needed to comment this in OPL Code (2 Times) if (hack_ch == 0 && s == 12)
 
+    USE_RTC=1
+
 # Debug variables (Debug)
     PM_ENABLE_STDIO=1      # Enable the Serial Display to the defined serial device (ASYNC_UART)
     UART_PIN0=0            # Use PIN0 (IRQ) instead of Pin 28
@@ -302,7 +262,7 @@ if (PROJECT_TYPE STREQUAL "TEST")
 #    pico_enable_stdio_uart(picomem 0)
 #    pico_enable_stdio_semihosting(picomem 0)
 #    pico_enable_stdio_usb(picomem 0)
-#    pico_enable_stdio_uart(picomem 1)
+#    pico_enable_stdio_uart(picomem 0)
 
 endif()  #(PROJECT_TYPE STREQUAL "TEST")
 
