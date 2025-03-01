@@ -55,7 +55,12 @@ If not, see <https://www.gnu.org/licenses/>.
 
 // PicoMEM emulated devices include
 #include "dev_post.h"
+#if USE_USBHOST
 #include "dev_joystick.h"
+#endif
+#if USE_RTC
+#include "dev_rtc.h"
+#endif
 
 #if USE_AUDIO
 #include "audio_devices.h"

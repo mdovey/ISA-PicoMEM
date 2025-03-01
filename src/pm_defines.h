@@ -29,6 +29,7 @@ If not, see <https://www.gnu.org/licenses/>.
 #define DEV_ADLIB  8
 #define DEV_CMS    9
 #define DEV_TANDY  10
+#define DEV_RTC    11
 
 
 // * Status and Commands definition

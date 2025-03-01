@@ -260,6 +260,7 @@ STR_Tandy DB 'Tandy',0x0D,0x0A,0
 %include "pm_mem.asm"
 %include "pm_cmd.asm"
 %include "bios_menu.asm"
+%include "bios_rtc.asm"
 
 ; PicoMEM BIOS "Boot Sequence : 
 ;
@@ -703,6 +704,20 @@ NotUpdateBIOSRAMSize:
 %if ENABLE_IRQ=1
     CALL PM_InstallIRQ3_5_7
 %endif	
+
+;install RTC int 1A
+
+EXTRN		NS_DETECT:NEAR
+	CALL	NS_DETECT			; DI = new IVT, AL = RTC type, DX = port
+	MOV	SI, OFFSET STR_NS		; '58167' string
+	JZ	DETECT_SET
+	JMP	SHORT	DETECT_DONE		; done detecting RTCs and none found
+ASSUME DS:_BDA
+DETECT_SET:
+	PUSH	DX				; save DX port
+	CALL	SETUP_RTC			; set RTC type and port DX
+	POP	DI				; DI = detected port
+DETECT_DONE:
 	RET ; PM_FinalConfig End
 
 ; END of the PicoMEM Init

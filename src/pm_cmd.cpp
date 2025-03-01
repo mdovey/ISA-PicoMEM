@@ -73,7 +73,12 @@ If not, see <https://www.gnu.org/licenses/>.
 #include "dev_memory.h"
 #include "dev_picomem_io.h"
 #include "dev_post.h"
+#if USE_USBHOST
 #include "dev_joystick.h"
+#endif
+#if USE_RTC
+#include "dev_rtc.h"
+#endif
 
 #if USE_AUDIO
 #include "audio_devices.h"
@@ -479,6 +484,7 @@ void PM_StopUSB()
 // *******************************
 // ***** Audio On / On Code  *****
 // *******************************
+#if USE_AUDIO
 void PM_Adlib_OnOff(uint16_t state)
 {
  if (state)
@@ -550,10 +556,12 @@ void PM_Audio_OnOff(uint8_t state)
       pm_audio_stop();
     }
 }    
+#endif
 
 // PM_Joystick_OnOff : Enable/Disable the Joystick
 // state : 0: Off / 1: On
 // return false it it can't enable it
+#if USE_USBHOST
 bool PM_Joystick_OnOff(uint8_t state)
 {
  if (state)
@@ -573,6 +581,25 @@ bool PM_Joystick_OnOff(uint8_t state)
       return true;      
      }
 }
+#endif
+
+#if USE_RTC
+bool PM_RTC_OnOff(uint8_t state)
+{
+ if (state)
+    {
+       PM_INFO("-Enable RTC\n");        
+       dev_rtc_install();
+       return true;
+    }
+    else 
+    {
+      PM_INFO("-Disable RTC\n");
+      dev_rtc_remove();
+      return true;      
+     }
+}
+#endif
 
 // *************************************************************
 // *****     Pico MEMP Commands Run from the 2nd core      *****
@@ -791,6 +818,10 @@ if (PM_Command!=0) PM_INFO("CMD %X,%X > ",PM_Command,PM_CmdDataL);
       PM_Audio_OnOff(PM_Config->AudioOut);
 #endif
 
+#if USE_RTC
+     PM_RTC_OnOff(true);
+#endif
+
       PM_Status=STAT_READY;
       break;
 
@@ -932,13 +963,17 @@ if (PM_Command!=0) PM_INFO("CMD %X,%X > ",PM_Command,PM_CmdDataL);
 
    case CMD_Joy_OnOff:        // USB Joystick : 0: Off 1: on
       uint16_t arg;
+#if USE_USBHOST
       arg=((uint16_t)PM_CmdDataH<<8)+(uint16_t)PM_CmdDataL;
       printf("%X",arg);
       PM_CmdDataL=PM_Joystick_OnOff(arg);  
+#else
+      PM_CmdDataL=0;  
+#endif
       PM_CmdDataH=0;
       PM_Status=STAT_READY;      
      break;
-	 
+
    case CMD_Wifi_Infos	:   // CMD: 0x60  Get the Wifi Status, retry to connect if not connected
 #if PM_PICO_W
 #if USE_NE2000   
@@ -967,7 +1002,7 @@ if (PM_Command!=0) PM_INFO("CMD %X,%X > ",PM_Command,PM_CmdDataL);
       uint8_t usbnb;
       char *str_tmp;
       str_tmp=(char *) &PCCR_Param;
-
+   #if USE_USBHOST
       usb_print_status();
       if ((PM_Config->EnableUSB)==1)
         {
@@ -993,48 +1028,64 @@ if (PM_Command!=0) PM_INFO("CMD %X,%X > ",PM_Command,PM_CmdDataL);
         {
          str_tmp[0]=0;  // Nothing to Display (No USB)
         }
+      #else 
+        str_tmp[0]=0;  // Nothing to Display (No USB)
+      #endif  
+
       PM_Status=STAT_READY;
      break;
 
 // *** Audio Commands  0x8x ***
 
    case CMD_AudioOnOff:     // Full audio rendering 0: Off 1:On
+#if USE_AUDIO
       PM_Audio_OnOff(PM_CmdDataL);
+#endif
       PM_Status=STAT_READY;
      break;
 
    case CMD_AdlibOnOff:      // Adlib Audio : 0 : Off 1: On default
+#if USE_AUDIO
       arg=((uint16_t)PM_CmdDataH<<8)+(uint16_t)PM_CmdDataL;
 ////      printf("%X %X %X",PM_CmdDataH,PM_CmdDataL,arg);     
       PM_Adlib_OnOff(arg);
       quiic_4charLCD_enabled=false;    // Stop Qwiic when audio is active
       pm_audio_start();                // Start Audio if not on
+#endif
       PM_Status=STAT_READY;
      break;
 
    case CMD_TDYOnOff:        // Tandy Audio : 0 : Off 1: On default or port, return install status
+#if USE_AUDIO
       arg=((uint16_t)PM_CmdDataH<<8)+(uint16_t)PM_CmdDataL;
       printf("%X %X %X",PM_CmdDataH,PM_CmdDataL,arg);
       PM_CmdDataL=PM_TDY_OnOff(arg);
       quiic_4charLCD_enabled=false;    // Stop Qwiic when audio is active
       pm_audio_start();                // Start Audio if not on    
+#else 
+      PM_CmdDataL=0;
+#endif
       PM_CmdDataH=0;
       PM_Status=STAT_READY;      
      break;
 
    case CMD_CMSOnOff:        // CMS Audio   : 0 : Off 1: On default or port, return install status
+#if USE_AUDIO
       arg=(uint16_t)PM_CmdDataH<<8+(uint16_t)PM_CmdDataL;
 //      printf("%X %X %X",PM_CmdDataH,PM_CmdDataL,arg);
       PM_CmdDataL=PM_CMS_OnOff(((uint16_t)PM_CmdDataH<<8)+(uint16_t)PM_CmdDataL);
       quiic_4charLCD_enabled=false;    // Stop Qwiic when audio is active
       pm_audio_start();                // Start Audio if not on     
+#else 
+      PM_CmdDataL=0;
+#endif
       PM_CmdDataH=0;
       PM_Status=STAT_READY;
      break;
 
    case CMD_GUSOnOff:        // CMS Audio   : 0 : Off 1: On default or port
       
-      PM_Status=STAT_READY;
+     PM_Status=STAT_READY;
      break;
 
 // *** Disk Commands  0x8x ***
@@ -1421,6 +1472,7 @@ if (USB_Host_Enabled)
   dev_post_update();
 #endif
 
+#if (USE_AUDIO)
 if (absolute_time_diff_us(get_absolute_time(), pm_cmd_1sdelay) < 0)
      {
       //printf("CMSD: %d, %d \n",dev_cms_delay,dev_cms_playing);
@@ -1439,8 +1491,10 @@ if (absolute_time_diff_us(get_absolute_time(), pm_cmd_1sdelay) < 0)
          }
       pm_cmd_1sdelay = make_timeout_time_us(1000000);  //1000000 is 1 second
      }
+#endif
 
 #if PM_PICO_W
+#if USE_NE2000
 if (BV_WifiInit==0)
   if (absolute_time_diff_us(get_absolute_time(), wifi_getstatus_delay) < 0)
      {
@@ -1451,6 +1505,7 @@ if (BV_WifiInit==0)
       PM_INFO("PM_Wifi.rate %d\n",PM_Wifi.rate);     
       wifi_getstatus_delay = make_timeout_time_us(WIFI_STATUS_DELAY);
      }
+#endif
 #endif
 
 if (multicore_fifo_rvalid())

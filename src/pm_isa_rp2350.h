@@ -164,6 +164,12 @@ asm volatile (
           break;          
 #endif
 
+#if USE_RTC
+        case DEV_RTC :
+           dev_rtc_iow(ISA_IO_Addr,ISAIOW_Data);
+           break;   
+#endif
+
 // *** Add Other device IOW here ***         
 
         }          // switch(IO_Device) (Write)
@@ -204,8 +210,14 @@ asm volatile (
            dev_cms_ior(ISA_IO_Addr,&ISA_Data);
            pm_do_ior();           
           break;          
-#endif          
+#endif      
 
+#if USE_RTC
+        case DEV_RTC:
+           dev_rtc_ior(ISA_IO_Addr,&ISA_Data);
+           pm_do_ior();           
+          break; 
+#endif
 
    // *** Add Other device IOR here ***
         }         // switch(IO_Device) (Read)
