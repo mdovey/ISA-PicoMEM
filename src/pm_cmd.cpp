@@ -1192,7 +1192,7 @@ if (PM_Command!=0) PM_INFO("CMD %X,%X > ",PM_Command,PM_CmdDataL);
 
    case CMD_SetSBIRQ:        // GUS Audio   : 0 : Off 1: On default or port
       
-      PM_Status=STAT_READY;
+     PM_Status=STAT_READY;
      break;
 
    case CMD_SBOnOff:        // Sound Blaster Audio : 0 : Off 1: On default or port  !! Need to add IRQ

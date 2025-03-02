@@ -346,6 +346,12 @@ ISA_Do_IO:  // Goto, from the assembly code
         case DEV_RTC:
            dev_rtc_ior(ISA_IO_Addr,&ISA_Data);
            pm_do_ior();           
+          break;          
+#endif 
+#if USE_RTC   
+        case DEV_RTC:
+           dev_rtc_ior(ISA_IO_Addr,&ISA_Data);
+           pm_do_ior();           
            break; 
 #endif
 
